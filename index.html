@@ -273,25 +273,80 @@ const NAV_ITEMS = [
   { id: "contact",  label: "Контакты", bg: "var(--cont-bg)", color: "var(--cont-text)" },
 ];
 
-const PROJECTS = [
+const DEFAULT_PROJECTS = [
   { title: "Имя Проекта", desc: "Краткое описание проекта: чем он о, кто участвовал и что получилось в итоге. Замените этот текст на реальную историю проекта." },
   { title: "Имя Проекта", desc: "Краткое описание проекта: чем он о, кто участвовал и что получилось в итоге. Замените этот текст на реальную историю проекта." },
   { title: "Имя Проекта", desc: "Краткое описание проекта: чем он о, кто участвовал и что получилось в итоге. Замените этот текст на реальную историю проекта." },
 ];
 
-const NEWS = [
+const DEFAULT_NEWS = [
   { title: "Имя Новости", desc: "Короткая новость или анонс события. Замените этот текст на актуальную новость — выход книги, встречу с читателями или интервью." },
   { title: "Имя Новости", desc: "Короткая новость или анонс события. Замените этот текст на актуальную новость — выход книги, встречу с читателями или интервью." },
   { title: "Имя Новости", desc: "Короткая новость или анонс события. Замените этот текст на актуальную новость — выход книги, встречу с читателями или интервью." },
 ];
 
-const BOOKS = [
+const DEFAULT_BOOKS = [
   { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
   { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
   { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
   { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
   { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
 ];
+
+const DEFAULT_BIO = {
+  name: "Асланова Юлия",
+  bioText:
+    "и я пишу истории для детей и подростков. О насекомых, сказочных персонажах, далеких планетах, загадках и любви. Живу и работаю в Калифорнии, обожаю фантастику, детективы и истории про животных. Изучаю океанологию и экологию.",
+  photo: "https://i.ibb.co/5XpMnfp3/image-18.png",
+};
+
+const DEFAULT_CONTACT = {
+  email: "yuliaaslanova@yandex.ru",
+  agentEmail: "agentaslanova@yandex.ru",
+  socials: [{ label: "Goodreads" }, { label: "Facebook" }, { label: "Instagram" }, { label: "Youtube" }],
+};
+
+// Public Builder.io API key — safe to expose client-side, read-only access to published content.
+const BUILDER_API_KEY = "338771099fb24ae997f53529e4eb4187";
+
+// Fetches every published entry of a Builder.io "Data" model. Falls back to the
+// hardcoded defaults above until a model with that name exists and has content.
+function useBuilderList(model, fallback, mapEntry = (d) => d) {
+  const [items, setItems] = useState(fallback);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`https://cdn.builder.io/api/v3/content/${model}?apiKey=${BUILDER_API_KEY}&limit=100`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (cancelled || !res || !Array.isArray(res.results) || res.results.length === 0) return;
+        setItems(res.results.map((entry) => mapEntry(entry.data || {})));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [model]);
+  return items;
+}
+
+// Fetches the single published entry of a Builder.io "Data" model (e.g. bio, contact info).
+function useBuilderSingle(model, fallback, mapEntry = (d) => d) {
+  const [data, setData] = useState(fallback);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`https://cdn.builder.io/api/v3/content/${model}?apiKey=${BUILDER_API_KEY}&limit=1`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (cancelled || !res || !Array.isArray(res.results) || !res.results[0]) return;
+        setData({ ...fallback, ...mapEntry(res.results[0].data || {}) });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [model]);
+  return data;
+}
 
 function Reveal({ as: As = "div", className = "", delay = 0, children }) {
   const ref = useRef(null);
@@ -353,14 +408,14 @@ function Hero() {
   );
 }
 
-function HomePage() {
+function HomePage({ bio }) {
   return (
     <div className="section">
       <Reveal className="about-grid">
         <img
           className="about-photo"
-          src="https://i.ibb.co/5XpMnfp3/image-18.png"
-          alt="Портрет Юлии Аслановой"
+          src={bio.photo}
+          alt={`Портрет ${bio.name}`}
           loading="eager"
           width="381"
           height="416"
@@ -368,10 +423,7 @@ function HomePage() {
         <div className="about-copy">
           <h2>Обо мне</h2>
           <p>
-            Меня зовут <em>Асланова Юлия</em>, и я пишу истории для детей и подростков. О
-            насекомых, сказочных персонажах, далеких планетах, загадках и любви. Живу и работаю в
-            Калифорнии, обожаю фантастику, детективы и истории про животных. Изучаю океанологию и
-            экологию.
+            Меня зовут <em>{bio.name}</em>, {bio.bioText}
           </p>
         </div>
       </Reveal>
@@ -395,14 +447,14 @@ function ListPage({ items }) {
   );
 }
 
-function BooksPage({ onNavigate }) {
+function BooksPage({ items, onNavigate }) {
   return (
     <div className="section">
       <Reveal as="button" className="order-btn" onClick={() => onNavigate("contact")}>
         Поставить Заказ
       </Reveal>
       <div className="book-grid">
-        {BOOKS.map((book, i) => (
+        {items.map((book, i) => (
           <Reveal as="div" className="book-card" delay={i * 100} key={i}>
             <img src={book.img} alt={book.title} loading="lazy" width="227" height="339" />
             <h3>{book.title}</h3>
@@ -413,26 +465,24 @@ function BooksPage({ onNavigate }) {
   );
 }
 
-function ContactPage() {
+function ContactPage({ contact }) {
   return (
     <div className="section">
       <Reveal as="p" className="contact-info">
         Адрес почты: <br />
-        <a href="mailto:yuliaaslanova@yandex.ru">yuliaaslanova@yandex.ru</a>
+        <a href={`mailto:${contact.email}`}>{contact.email}</a>
         <br />
         <br />
-        Goodreads
-        <br />
-        Facebook
-        <br />
-        Instagram
-        <br />
-        Youtube
-        <br />
+        {contact.socials.map((s, i) => (
+          <React.Fragment key={i}>
+            {s.label}
+            <br />
+          </React.Fragment>
+        ))}
         <br />
         Agent Email:
         <br />
-        <a href="mailto:agentaslanova@yandex.ru">agentaslanova@yandex.ru</a>
+        <a href={`mailto:${contact.agentEmail}`}>{contact.agentEmail}</a>
       </Reveal>
     </div>
   );
@@ -445,6 +495,19 @@ function getPageFromHash() {
 
 function App() {
   const [page, setPage] = useState(getPageFromHash());
+
+  const bio = useBuilderSingle("home-bio", DEFAULT_BIO);
+  const projects = useBuilderList("projects", DEFAULT_PROJECTS, (d) => ({
+    title: d.title,
+    desc: d.description,
+  }));
+  const news = useBuilderList("news", DEFAULT_NEWS, (d) => ({ title: d.title, desc: d.description }));
+  const books = useBuilderList("books", DEFAULT_BOOKS, (d) => ({ title: d.title, img: d.image }));
+  const contact = useBuilderSingle("contact-info", DEFAULT_CONTACT, (d) => ({
+    email: d.email,
+    agentEmail: d.agentEmail,
+    socials: Array.isArray(d.socials) && d.socials.length > 0 ? d.socials : DEFAULT_CONTACT.socials,
+  }));
 
   useEffect(() => {
     const onHashChange = () => setPage(getPageFromHash());
@@ -459,11 +522,11 @@ function App() {
   };
 
   let content;
-  if (page === "home") content = <HomePage />;
-  else if (page === "projects") content = <ListPage items={PROJECTS} />;
-  else if (page === "books") content = <BooksPage onNavigate={navigate} />;
-  else if (page === "news") content = <ListPage items={NEWS} />;
-  else content = <ContactPage />;
+  if (page === "home") content = <HomePage bio={bio} />;
+  else if (page === "projects") content = <ListPage items={projects} />;
+  else if (page === "books") content = <BooksPage items={books} onNavigate={navigate} />;
+  else if (page === "news") content = <ListPage items={news} />;
+  else content = <ContactPage contact={contact} />;
 
   const navAtBottom = page === "home";
 
