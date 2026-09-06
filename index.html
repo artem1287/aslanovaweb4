@@ -373,6 +373,16 @@ function parseCSV(text) {
   return rows.filter((r) => r.some((cell) => cell.trim() !== ""));
 }
 
+// Looks up a column by the start of its header text, ignoring case and
+// anything appended after it (e.g. a column literally named "Cover Image
+// URL (225x340)" still matches findField(row, "Cover Image URL")). Makes
+// the site tolerant of the sheet owner editing header wording/notes.
+function findField(row, baseName) {
+  const target = baseName.trim().toLowerCase();
+  const key = Object.keys(row).find((k) => k.trim().toLowerCase().startsWith(target));
+  return key ? row[key] : undefined;
+}
+
 async function fetchSheetRows(url) {
   if (!url) return [];
   const res = await fetch(url);
@@ -575,23 +585,23 @@ function App() {
   const [page, setPage] = useState(getPageFromHash());
 
   const bio = useSheetSingle(SHEET_CSV_URLS.bio, DEFAULT_BIO, (row) => ({
-    name: row["Name"],
-    bioText: row["Bio"],
-    photo: row["Photo URL"],
+    name: findField(row, "Name"),
+    bioText: findField(row, "Bio"),
+    photo: findField(row, "Photo URL"),
   }));
   const projects = useSheetList(SHEET_CSV_URLS.projects, DEFAULT_PROJECTS, (row) => ({
-    title: row["Project Title"],
-    desc: row["Project Description"],
-    img: row["Project Image URL"] || null,
+    title: findField(row, "Project Title"),
+    desc: findField(row, "Project Description"),
+    img: findField(row, "Project Image URL") || null,
   }));
   const news = useSheetList(SHEET_CSV_URLS.news, DEFAULT_NEWS, (row) => ({
-    title: row["News Title"],
-    desc: row["News Description"],
-    img: row["News Image URL"] || null,
+    title: findField(row, "News Title"),
+    desc: findField(row, "News Description"),
+    img: findField(row, "News Image URL") || null,
   }));
   const books = useSheetList(SHEET_CSV_URLS.books, DEFAULT_BOOKS, (row) => ({
-    title: row["Book Title"],
-    img: row["Cover Image URL"],
+    title: findField(row, "Book Title"),
+    img: findField(row, "Cover Image URL"),
   }));
   const contact = useSheetSingle(SHEET_CSV_URLS.contact, DEFAULT_CONTACT, (row) => {
     const socialsRaw = row["Social platforms (comma separated)"] || "";
