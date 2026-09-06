@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Юлия Асланова — Писатель</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --bg: #F9F7F1;
+    --tan: #E8DDC7;
+    --text: rgba(0,0,0,0.65);
+    --title: #5C4635;
+    --hover-bg: #AFAFAF;
+    --hover-text: #2E2E2E;
+
+    --home-bg: #A99AA5;  --home-text: #3F343D;
+    --proj-bg: #B8877B;  --proj-text: #4A2928;
+    --book-bg: #9BA58A;  --book-text: #384033;
+    --news-bg: #8FA6AD;  --news-text: #293B42;
+    --cont-bg: #C4A66A;  --cont-text: #4D3A20;
+  }
+
+  *{ box-sizing: border-box; }
+  html, body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img{ max-width:100%; display:block; }
+  button{ font-family: inherit; cursor: pointer; border: none; }
+  a{ color: inherit; text-decoration: none; }
+
+  .app{ min-height: 100vh; display:flex; flex-direction:column; }
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 1rem;
+    margin-top: 0.35rem;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .nav.nav-bottom{
+    position: static;
+    margin-top: 2.5rem;
+    margin-bottom: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0,0,0,0.08);
+    border-bottom: none;
+  }
+  .nav-btn{
+    --btn-bg: #ccc;
+    --btn-text: #222;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    font-size: clamp(18px, 2.2vw, 26px);
+    font-weight: 500;
+    padding: 0.45em 1em;
+    border-radius: 0;
+    transition: background-color .18s ease, color .18s ease, transform .12s ease;
+  }
+  .nav-btn:hover,
+  .nav-btn:focus-visible{
+    background: var(--hover-bg);
+    color: var(--hover-text);
+  }
+  .nav-btn:active{ transform: translateY(1px); }
+  .nav-btn.active{ outline: 2px solid rgba(0,0,0,0.25); outline-offset: 2px; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding: 1.75rem 1.5rem 0.5rem;
+    display:flex;
+    justify-content:center;
+    text-align:center;
+  }
+  .hero-card{
+    background: var(--tan);
+    transform: rotate(-1.5deg);
+    border-radius: 0;
+    padding: 0.6em 1.6em;
+    max-width: 94%;
+  }
+  .hero-card h1{
+    margin:0;
+    color: var(--title);
+    font-weight:700;
+    font-size: clamp(1.9rem, 6.5vw, 4.2rem);
+    line-height:1.25;
+  }
+
+  /* ---------- REVEAL ANIMATION ---------- */
+  .reveal{
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 1.3s ease, transform 1.3s ease;
+  }
+  .reveal-visible{
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ transition:none; opacity:1; transform:none; }
+  }
+
+  /* ---------- MAIN / SECTIONS ---------- */
+  main{ flex:1; }
+  .section{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: clamp(2rem,5vw,3.5rem) 1.5rem;
+  }
+
+  /* Home / About */
+  .about-grid{
+    display:flex;
+    gap: clamp(1.5rem,4vw,3rem);
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+  .about-photo{
+    width: min(381px, 100%);
+    height: auto;
+    aspect-ratio: 381/416;
+    object-fit: cover;
+    border-radius: 12px;
+    flex: 1 1 300px;
+  }
+  .about-copy{ flex: 2 1 420px; }
+  .about-copy h2{
+    margin: 0 0 0.75rem;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight:600;
+  }
+  .about-copy p{
+    margin:0;
+    font-size: clamp(1.05rem, 1.6vw, 1.5rem);
+    font-weight:500;
+    line-height:1.5;
+  }
+  .about-copy em{ font-style: italic; font-weight:500; }
+
+  /* Projects / News list */
+  .list-item{
+    display:flex;
+    gap: clamp(1.5rem,4vw,3rem);
+    align-items:flex-start;
+    flex-wrap:wrap;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .list-item:last-child{ border-bottom:none; }
+  .list-thumb{
+    width: 240px;
+    max-width: 100%;
+    aspect-ratio: 382/198;
+    background:#D9D9D9;
+    border-radius: 8px;
+    flex: 1 1 240px;
+  }
+  .list-copy{ flex: 2 1 420px; }
+  .list-copy h3{
+    margin:0 0 0.75rem;
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    font-weight:600;
+  }
+  .list-copy p{
+    margin:0;
+    font-size: clamp(1rem, 1.4vw, 1.25rem);
+    font-weight:500;
+    line-height:1.6;
+  }
+
+  /* Books */
+  .order-btn{
+    display:block;
+    margin: 0 auto 3rem;
+    background: var(--book-bg);
+    color: var(--book-text);
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-weight:600;
+    padding: 0.5em 1.1em;
+    border-radius: 0;
+    transition: background-color .18s ease, color .18s ease;
+  }
+  .order-btn:hover, .order-btn:focus-visible{
+    background: var(--hover-bg);
+    color: var(--hover-text);
+  }
+  .book-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2rem;
+  }
+  .book-card img{
+    width:100%;
+    aspect-ratio: 227/339;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+  }
+  .book-card h3{
+    margin:0;
+    font-size: 1.15rem;
+    font-weight:600;
+  }
+
+  /* Contact */
+  .contact-info{
+    margin:0;
+    max-width: 700px;
+    color: var(--text);
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-weight:600;
+    line-height:1.6;
+  }
+  .contact-info a{
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color .18s ease;
+  }
+  .contact-info a:hover{ color: var(--hover-text); }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    background: var(--tan);
+    padding: 3rem 1.5rem;
+    text-align:center;
+    margin-top: 2rem;
+  }
+  footer p{
+    margin:0;
+    font-size: clamp(0.95rem, 1.6vw, 1.4rem);
+    font-weight:500;
+  }
+
+  @media (max-width: 380px){
+    .hero-card{ padding: 0.5em 1em; }
+    .hero-card h1{ font-size: clamp(1.2rem, 7.5vw, 2.1rem); }
+    .nav{ margin-top: -0.5rem; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+const NAV_ITEMS = [
+  { id: "home",     label: "Дом",      bg: "var(--home-bg)", color: "var(--home-text)" },
+  { id: "projects", label: "Проекты",  bg: "var(--proj-bg)", color: "var(--proj-text)" },
+  { id: "books",    label: "Книги",    bg: "var(--book-bg)", color: "var(--book-text)" },
+  { id: "news",     label: "Новости",  bg: "var(--news-bg)", color: "var(--news-text)" },
+  { id: "contact",  label: "Контакты", bg: "var(--cont-bg)", color: "var(--cont-text)" },
+];
+
+const PROJECTS = [
+  { title: "Имя Проекта", desc: "Краткое описание проекта: чем он о, кто участвовал и что получилось в итоге. Замените этот текст на реальную историю проекта." },
+  { title: "Имя Проекта", desc: "Краткое описание проекта: чем он о, кто участвовал и что получилось в итоге. Замените этот текст на реальную историю проекта." },
+  { title: "Имя Проекта", desc: "Краткое описание проекта: чем он о, кто участвовал и что получилось в итоге. Замените этот текст на реальную историю проекта." },
+];
+
+const NEWS = [
+  { title: "Имя Новости", desc: "Короткая новость или анонс события. Замените этот текст на актуальную новость — выход книги, встречу с читателями или интервью." },
+  { title: "Имя Новости", desc: "Короткая новость или анонс события. Замените этот текст на актуальную новость — выход книги, встречу с читателями или интервью." },
+  { title: "Имя Новости", desc: "Короткая новость или анонс события. Замените этот текст на актуальную новость — выход книги, встречу с читателями или интервью." },
+];
+
+const BOOKS = [
+  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
+  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
+  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
+  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
+  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
+];
+
+function Reveal({ as: As = "div", className = "", delay = 0, children }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            obs.unobserve(node);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    obs.observe(node);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <As
+      ref={ref}
+      className={`reveal ${visible ? "reveal-visible" : ""} ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </As>
+  );
+}
+
+function Nav({ page, onNavigate, bottom }) {
+  return (
+    <nav className={`nav${bottom ? " nav-bottom" : ""}`}>
+      {NAV_ITEMS.map((item) => (
+        <button
+          key={item.id}
+          className={`nav-btn${page === item.id ? " active" : ""}`}
+          style={{ "--btn-bg": item.bg, "--btn-text": item.color }}
+          onClick={() => onNavigate(item.id)}
+        >
+          {item.label}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="hero">
+      <div className="hero-card">
+        <h1>Я придумываю истории</h1>
+      </div>
+    </section>
+  );
+}
+
+function HomePage() {
+  return (
+    <div className="section">
+      <Reveal className="about-grid">
+        <img
+          className="about-photo"
+          src="https://i.ibb.co/5XpMnfp3/image-18.png"
+          alt="Портрет Юлии Аслановой"
+          loading="eager"
+          width="381"
+          height="416"
+        />
+        <div className="about-copy">
+          <h2>Обо мне</h2>
+          <p>
+            Меня зовут <em>Асланова Юлия</em>, и я пишу истории для детей и подростков. О
+            насекомых, сказочных персонажах, далеких планетах, загадках и любви. Живу и работаю в
+            Калифорнии, обожаю фантастику, детективы и истории про животных. Изучаю океанологию и
+            экологию.
+          </p>
+        </div>
+      </Reveal>
+    </div>
+  );
+}
+
+function ListPage({ items }) {
+  return (
+    <div className="section">
+      {items.map((item, i) => (
+        <Reveal as="div" className="list-item" delay={i * 130} key={i}>
+          <div className="list-thumb"></div>
+          <div className="list-copy">
+            <h3>{item.title}</h3>
+            <p>{item.desc}</p>
+          </div>
+        </Reveal>
+      ))}
+    </div>
+  );
+}
+
+function BooksPage({ onNavigate }) {
+  return (
+    <div className="section">
+      <Reveal as="button" className="order-btn" onClick={() => onNavigate("contact")}>
+        Поставить Заказ
+      </Reveal>
+      <div className="book-grid">
+        {BOOKS.map((book, i) => (
+          <Reveal as="div" className="book-card" delay={i * 100} key={i}>
+            <img src={book.img} alt={book.title} loading="lazy" width="227" height="339" />
+            <h3>{book.title}</h3>
+          </Reveal>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ContactPage() {
+  return (
+    <div className="section">
+      <Reveal as="p" className="contact-info">
+        Адрес почты: <br />
+        <a href="mailto:yuliaaslanova@yandex.ru">yuliaaslanova@yandex.ru</a>
+        <br />
+        <br />
+        Goodreads
+        <br />
+        Facebook
+        <br />
+        Instagram
+        <br />
+        Youtube
+        <br />
+        <br />
+        Agent Email:
+        <br />
+        <a href="mailto:agentaslanova@yandex.ru">agentaslanova@yandex.ru</a>
+      </Reveal>
+    </div>
+  );
+}
+
+function getPageFromHash() {
+  const hash = window.location.hash.replace("#", "");
+  return NAV_ITEMS.some((n) => n.id === hash) ? hash : "home";
+}
+
+function App() {
+  const [page, setPage] = useState(getPageFromHash());
+
+  useEffect(() => {
+    const onHashChange = () => setPage(getPageFromHash());
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  const navigate = (id) => {
+    window.location.hash = id;
+    setPage(id);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  let content;
+  if (page === "home") content = <HomePage />;
+  else if (page === "projects") content = <ListPage items={PROJECTS} />;
+  else if (page === "books") content = <BooksPage onNavigate={navigate} />;
+  else if (page === "news") content = <ListPage items={NEWS} />;
+  else content = <ContactPage />;
+
+  const navAtBottom = page === "home";
+
+  return (
+    <div className="app">
+      <Hero key={`hero-${page}`} />
+      {!navAtBottom && <Nav page={page} onNavigate={navigate} />}
+      <main key={page}>{content}</main>
+      {navAtBottom && <Nav page={page} onNavigate={navigate} bottom />}
+      <footer>
+        <p>© 2026 Yulia Aslanova. All rights reserved</p>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
