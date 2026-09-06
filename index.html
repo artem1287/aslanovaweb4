@@ -168,7 +168,7 @@
   .list-thumb{
     width: 240px;
     max-width: 100%;
-    aspect-ratio: 382/198;
+    aspect-ratio: 380/200;
     background:#D9D9D9;
     border-radius: 8px;
     flex: 1 1 240px;
@@ -215,7 +215,8 @@
   }
   .book-card img{
     width:100%;
-    aspect-ratio: 227/339;
+    height: auto;
+    aspect-ratio: 225/340;
     object-fit: cover;
     border-radius: 6px;
     margin-bottom: 0.75rem;
@@ -532,7 +533,7 @@ function BooksPage({ items, onNavigate }) {
       <div className="book-grid">
         {items.map((book, i) => (
           <Reveal as="div" className="book-card" delay={i * 100} key={i}>
-            <img src={book.img} alt={book.title} loading="lazy" width="227" height="339" />
+            <img src={book.img} alt={book.title} loading="lazy" width="225" height="340" />
             <h3>{book.title}</h3>
           </Reveal>
         ))}
