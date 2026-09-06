@@ -306,45 +306,108 @@ const DEFAULT_CONTACT = {
   socials: [{ label: "Goodreads" }, { label: "Facebook" }, { label: "Instagram" }, { label: "Youtube" }],
 };
 
-// Public Builder.io API key — safe to expose client-side, read-only access to published content.
-const BUILDER_API_KEY = "338771099fb24ae997f53529e4eb4187";
+// Each of these is a "Publish to web" CSV link for one tab of the shared Google
+// Sheet — see SHEETS_GUIDE.md for how to create the sheet and get these links.
+// File > Share > Publish to web > pick the tab > format: CSV.
+// Leave a value empty ("") and that section just keeps using the hardcoded
+// defaults below until its link is filled in.
+const SHEET_CSV_URLS = {
+  bio: "",
+  projects: "",
+  books: "",
+  news: "",
+  contact: "",
+};
 
-// Fetches every published entry of a Builder.io "Data" model. Falls back to the
-// hardcoded defaults above until a model with that name exists and has content.
-function useBuilderList(model, fallback, mapEntry = (d) => d) {
+// Minimal RFC4180-style CSV parser: handles quoted fields, commas and
+// newlines inside quotes, and "" as an escaped quote. Good enough for
+// Google Sheets' own CSV export.
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"' && text[i + 1] === '"') {
+        field += '"';
+        i++;
+      } else if (c === '"') {
+        inQuotes = false;
+      } else {
+        field += c;
+      }
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ",") {
+      row.push(field);
+      field = "";
+    } else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += c;
+    }
+  }
+  if (field.length > 0 || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows.filter((r) => r.some((cell) => cell.trim() !== ""));
+}
+
+async function fetchSheetRows(url) {
+  if (!url) return [];
+  const res = await fetch(url);
+  const text = await res.text();
+  const rows = parseCSV(text);
+  if (rows.length < 2) return [];
+  const header = rows[0].map((h) => h.trim());
+  return rows.slice(1).map((r) => {
+    const obj = {};
+    header.forEach((h, i) => (obj[h] = (r[i] || "").trim()));
+    return obj;
+  });
+}
+
+// Fetches every row of a published Google Sheet tab. Falls back to the
+// hardcoded defaults above until SHEET_CSV_URLS has a real link for it.
+function useSheetList(url, fallback, mapRow = (d) => d) {
   const [items, setItems] = useState(fallback);
   useEffect(() => {
     let cancelled = false;
-    fetch(`https://cdn.builder.io/api/v3/content/${model}?apiKey=${BUILDER_API_KEY}&limit=100`)
-      .then((r) => r.json())
-      .then((res) => {
-        if (cancelled || !res || !Array.isArray(res.results) || res.results.length === 0) return;
-        setItems(res.results.map((entry) => mapEntry(entry.data || {})));
+    fetchSheetRows(url)
+      .then((rows) => {
+        if (cancelled || rows.length === 0) return;
+        setItems(rows.map(mapRow));
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [model]);
+  }, [url]);
   return items;
 }
 
-// Fetches the single published entry of a Builder.io "Data" model (e.g. bio, contact info).
-function useBuilderSingle(model, fallback, mapEntry = (d) => d) {
+// Fetches the first data row of a published Google Sheet tab (e.g. bio, contact info).
+function useSheetSingle(url, fallback, mapRow = (d) => d) {
   const [data, setData] = useState(fallback);
   useEffect(() => {
     let cancelled = false;
-    fetch(`https://cdn.builder.io/api/v3/content/${model}?apiKey=${BUILDER_API_KEY}&limit=1`)
-      .then((r) => r.json())
-      .then((res) => {
-        if (cancelled || !res || !Array.isArray(res.results) || !res.results[0]) return;
-        setData({ ...fallback, ...mapEntry(res.results[0].data || {}) });
+    fetchSheetRows(url)
+      .then((rows) => {
+        if (cancelled || rows.length === 0) return;
+        setData({ ...fallback, ...mapRow(rows[0]) });
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [model]);
+  }, [url]);
   return data;
 }
 
@@ -496,18 +559,36 @@ function getPageFromHash() {
 function App() {
   const [page, setPage] = useState(getPageFromHash());
 
-  const bio = useBuilderSingle("home-bio", DEFAULT_BIO);
-  const projects = useBuilderList("projects", DEFAULT_PROJECTS, (d) => ({
-    title: d.title,
-    desc: d.description,
+  const bio = useSheetSingle(SHEET_CSV_URLS.bio, DEFAULT_BIO, (row) => ({
+    name: row["Name"],
+    bioText: row["Bio"],
+    photo: row["Photo URL"],
   }));
-  const news = useBuilderList("news", DEFAULT_NEWS, (d) => ({ title: d.title, desc: d.description }));
-  const books = useBuilderList("books", DEFAULT_BOOKS, (d) => ({ title: d.title, img: d.image }));
-  const contact = useBuilderSingle("contact-info", DEFAULT_CONTACT, (d) => ({
-    email: d.email,
-    agentEmail: d.agentEmail,
-    socials: Array.isArray(d.socials) && d.socials.length > 0 ? d.socials : DEFAULT_CONTACT.socials,
+  const projects = useSheetList(SHEET_CSV_URLS.projects, DEFAULT_PROJECTS, (row) => ({
+    title: row["Project title"],
+    desc: row["Project description"],
   }));
+  const news = useSheetList(SHEET_CSV_URLS.news, DEFAULT_NEWS, (row) => ({
+    title: row["News title"],
+    desc: row["News description"],
+  }));
+  const books = useSheetList(SHEET_CSV_URLS.books, DEFAULT_BOOKS, (row) => ({
+    title: row["Book title"],
+    img: row["Cover image URL"],
+  }));
+  const contact = useSheetSingle(SHEET_CSV_URLS.contact, DEFAULT_CONTACT, (row) => {
+    const socialsRaw = row["Social platforms (comma separated)"] || "";
+    const socials = socialsRaw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((label) => ({ label }));
+    return {
+      email: row["Email"],
+      agentEmail: row["Agent email"],
+      socials: socials.length > 0 ? socials : DEFAULT_CONTACT.socials,
+    };
+  });
 
   useEffect(() => {
     const onHashChange = () => setPage(getPageFromHash());
