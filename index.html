@@ -108,7 +108,7 @@
   .reveal{
     opacity: 0;
     transform: translateY(28px);
-    transition: opacity 1.3s ease, transform 1.3s ease;
+    transition: opacity 0.8s ease, transform 0.8s ease;
   }
   .reveal-visible{
     opacity: 1;
@@ -193,21 +193,6 @@
   }
 
   /* Books */
-  .order-btn{
-    display:block;
-    margin: 0 auto 3rem;
-    background: var(--book-bg);
-    color: var(--book-text);
-    font-size: clamp(1.4rem, 3vw, 2.2rem);
-    font-weight:600;
-    padding: 0.5em 1.1em;
-    border-radius: 0;
-    transition: background-color .18s ease, color .18s ease;
-  }
-  .order-btn:hover, .order-btn:focus-visible{
-    background: var(--hover-bg);
-    color: var(--hover-text);
-  }
   .book-grid{
     display:grid;
     grid-template-columns: repeat(auto-fill, 225px);
@@ -621,12 +606,9 @@ function ListPage({ items }) {
   );
 }
 
-function BooksPage({ items, onNavigate, onOpenBook }) {
+function BooksPage({ items, onOpenBook }) {
   return (
     <div className="section">
-      <Reveal as="button" className="order-btn" onClick={() => onNavigate("contact")}>
-        Поставить Заказ
-      </Reveal>
       <div className="book-grid">
         {items.map((book, i) => (
           <Reveal as="button" className="book-card" delay={i * 100} key={i} onClick={() => onOpenBook(i)}>
@@ -773,12 +755,12 @@ function App() {
   let content;
   if (page === "home") content = <HomePage bio={bio} />;
   else if (page === "projects") content = <ListPage items={projects} />;
-  else if (page === "books") content = <BooksPage items={books} onNavigate={navigate} onOpenBook={openBook} />;
+  else if (page === "books") content = <BooksPage items={books} onOpenBook={openBook} />;
   else if (page === "news") content = <ListPage items={news} />;
   else if (page === "book-detail" && currentBook)
     content = <BookDetailPage book={currentBook} onNavigate={navigate} />;
   else if (page === "book-detail")
-    content = <BooksPage items={books} onNavigate={navigate} onOpenBook={openBook} />;
+    content = <BooksPage items={books} onOpenBook={openBook} />;
   else content = <ContactPage contact={contact} />;
 
   const navAtBottom = page === "home";
