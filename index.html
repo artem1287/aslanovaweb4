@@ -108,7 +108,7 @@
   .reveal{
     opacity: 0;
     transform: translateY(28px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    transition: opacity 0.5s ease, transform 0.5s ease;
   }
   .reveal-visible{
     opacity: 1;
@@ -196,7 +196,7 @@
   .book-grid{
     display:grid;
     grid-template-columns: repeat(auto-fill, 225px);
-    justify-content: center;
+    justify-content: start;
     gap: 2rem;
   }
   .book-card img{
@@ -286,12 +286,13 @@
   /* ---------- FOOTER ---------- */
   footer{
     background: var(--tan);
-    padding: 3rem 1.5rem;
-    text-align:center;
+    padding: 1.75rem 1.5rem 3rem;
     margin-top: 2rem;
   }
   footer p{
-    margin:0;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: left;
     font-size: clamp(0.95rem, 1.6vw, 1.4rem);
     font-weight:500;
   }
