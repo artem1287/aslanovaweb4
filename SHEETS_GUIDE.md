@@ -15,7 +15,7 @@ The sheet already has 4 tabs set up and connected:
 
 | Tab | Columns (must match exactly) |
 |---|---|
-| **Bio** | `Name`, `Bio`, `Photo URL` |
+| **Main** | `Name`, `Bio`, `Cover image URL` (controls the home page photo/bio) |
 | **Projects** | `Project Title`, `Project Description`, `Project Image URL` |
 | **Books** | `Book Title`, `Cover Image URL`, `Book Description`, `Book Price`, `Buy URL` |
 | **News** | `News Title`, `News Description`, `News Image URL` |
@@ -44,7 +44,7 @@ If you ever add a new tab yourself, it won't automatically connect to the site �
 ## What to Never Touch
 
 - Don't rename the column headers in row 1 (`Name`, `Bio`, `Book Title`, etc.) — the website looks for those exact words.
-- Don't rename the tabs (Bio / Projects / Books / News) — if you do, tell your developer so they can update the connection.
+- Don't rename the tabs (Main / Projects / Books / News) — if you do, tell your developer so they can update the connection. (This actually happened once already — renaming a tab changes its internal ID, which breaks the link until it's updated.)
 - Don't change the sheet's sharing setting to "Restricted" — it needs to stay "Anyone with the link can view" for the website to read it. (This doesn't let anyone *edit* it — only you and anyone you explicitly share edit-access with can change it. "Anyone with the link" here only controls who can *view*.)
 - Don't touch anything your developer says is "in the code" — that's layout and design, kept completely separate from your spreadsheet.
 

@@ -395,7 +395,9 @@ const SHEET_ID = "14dfIlgqPNdohLGi9r1UqaJPkGzCD39iHGmNkAdvu0Q0";
 const sheetCsvUrl = (gid) => `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
 
 const SHEET_CSV_URLS = {
-  bio: sheetCsvUrl(0),
+  // Tab was renamed from "Bio" to "Main"; gid 0 (the old tab) stopped
+  // resolving once that happened, hence the updated gid here.
+  bio: sheetCsvUrl(1821784223),
   projects: sheetCsvUrl(674802879),
   books: sheetCsvUrl(1977880879),
   news: sheetCsvUrl(2071403928),
@@ -496,7 +498,15 @@ function useSheetSingle(url, fallback, mapRow = (d) => d) {
     fetchSheetRows(url)
       .then((rows) => {
         if (cancelled || rows.length === 0) return;
-        setData({ ...fallback, ...mapRow(rows[0]) });
+        const mapped = mapRow(rows[0]);
+        // Only merge fields the sheet actually provided — a column that's
+        // missing from a given tab shouldn't blank out the fallback value
+        // for that field.
+        const provided = {};
+        Object.keys(mapped).forEach((key) => {
+          if (mapped[key] !== undefined) provided[key] = mapped[key];
+        });
+        setData({ ...fallback, ...provided });
       })
       .catch(() => {});
     return () => {
@@ -701,7 +711,7 @@ function App() {
   const bio = useSheetSingle(SHEET_CSV_URLS.bio, DEFAULT_BIO, (row) => ({
     name: findField(row, "Name"),
     bioText: findField(row, "Bio"),
-    photo: findField(row, "Photo URL"),
+    photo: findField(row, "Cover image URL") || findField(row, "Photo URL"),
   }));
   const projects = useSheetList(SHEET_CSV_URLS.projects, DEFAULT_PROJECTS, (row) => ({
     title: findField(row, "Project Title"),
