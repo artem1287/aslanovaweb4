@@ -717,7 +717,7 @@ function App() {
     title: findField(row, "Book Title"),
     img: findField(row, "Cover Image URL"),
     desc: findField(row, "Book Description") || "",
-    price: findField(row, "Price") || "",
+    price: findField(row, "Book Price") || "",
     buyUrl: findField(row, "Buy URL") || "",
   }));
   const contact = useSheetSingle(SHEET_CSV_URLS.contact, DEFAULT_CONTACT, (row) => {
