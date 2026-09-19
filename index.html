@@ -235,7 +235,21 @@
   }
 
   /* Book detail page */
-  .book-detail{ max-width: 720px; }
+  .book-detail{
+    display:flex;
+    gap: clamp(1.5rem,4vw,3rem);
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+  .book-detail-cover{
+    width: 225px;
+    height: 340px;
+    max-width: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+    flex: 0 0 225px;
+  }
+  .book-detail-copy{ flex: 2 1 420px; max-width: 720px; }
   .book-detail-title{
     margin:0 0 1rem;
     font-size: clamp(2rem, 4.5vw, 3.2rem);
@@ -627,31 +641,39 @@ function BooksPage({ items, onNavigate, onOpenBook }) {
 
 function BookDetailPage({ book, onNavigate }) {
   const hasBuyUrl = Boolean(book.buyUrl);
+  const BuyTag = hasBuyUrl ? "a" : "button";
   return (
-    <div className="section book-detail">
-      <Reveal as="h1" className="book-detail-title">
-        {book.title}
-      </Reveal>
-      {book.desc && (
-        <Reveal as="p" className="book-detail-desc" delay={80}>
-          {book.desc}
-        </Reveal>
-      )}
-      {book.price && (
-        <Reveal as="p" className="book-detail-price" delay={140}>
-          {book.price}
-        </Reveal>
-      )}
-      <Reveal
-        as={hasBuyUrl ? "a" : "button"}
-        className="book-buy-btn"
-        delay={200}
-        href={hasBuyUrl ? book.buyUrl : undefined}
-        target={hasBuyUrl ? "_blank" : undefined}
-        rel={hasBuyUrl ? "noopener noreferrer" : undefined}
-        onClick={hasBuyUrl ? undefined : () => onNavigate("contact")}
-      >
-        Оформить заказ
+    <div className="section">
+      <Reveal className="book-detail">
+        {book.img && (
+          <img
+            className="book-detail-cover"
+            src={book.img}
+            alt={book.title}
+            loading="eager"
+            width="225"
+            height="340"
+          />
+        )}
+        <div className="book-detail-copy">
+          <h1 className="book-detail-title">{book.title}</h1>
+          <p className="book-detail-desc">
+            {book.desc ||
+              "Здесь появится описание книги — добавьте его в таблице, в колонке «Book Description»."}
+          </p>
+          <p className="book-detail-price">
+            {book.price || "Здесь появится цена — добавьте её в таблице, в колонке «Price»."}
+          </p>
+          <BuyTag
+            className="book-buy-btn"
+            href={hasBuyUrl ? book.buyUrl : undefined}
+            target={hasBuyUrl ? "_blank" : undefined}
+            rel={hasBuyUrl ? "noopener noreferrer" : undefined}
+            onClick={hasBuyUrl ? undefined : () => onNavigate("contact")}
+          >
+            Оформить заказ
+          </BuyTag>
+        </div>
       </Reveal>
     </div>
   );
