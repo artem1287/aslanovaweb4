@@ -728,7 +728,7 @@ function App() {
     img: findField(row, "Cover Image URL"),
     desc: findField(row, "Book Description") || "",
     price: findField(row, "Book Price") || "",
-    buyUrl: findField(row, "Buy URL") || "",
+    buyUrl: findField(row, "Purchace link") || findField(row, "Purchase link") || findField(row, "Buy URL") || "",
   }));
   const contact = useSheetSingle(SHEET_CSV_URLS.contact, DEFAULT_CONTACT, (row) => {
     const socialsRaw = row["Social platforms (comma separated)"] || "";

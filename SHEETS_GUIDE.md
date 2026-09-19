@@ -17,12 +17,12 @@ The sheet already has 4 tabs set up and connected:
 |---|---|
 | **Main** | `Name`, `Bio`, `Cover image URL` (controls the home page photo/bio) |
 | **Projects** | `Project Title`, `Project Description`, `Project Image URL` |
-| **Books** | `Book Title`, `Cover Image URL`, `Book Description`, `Book Price`, `Buy URL` |
+| **Books** | `Book Title`, `Cover Image URL`, `Book Description`, `Book Price`, `Purchace link` |
 | **News** | `News Title`, `News Description`, `News Image URL` |
 
 Each row below the header row is one entry (one book, one news post, etc.). The **Image URL** columns are optional — leave a row's image cell blank and that entry just shows a plain placeholder box instead of a photo.
 
-Clicking any book on the Books page opens its own page showing the title, cover, `Book Description`, and `Book Price`. If you fill in `Buy URL` (a real link to where people can buy it), the "Оформить заказ" button links straight there in a new tab; leave it blank and the button just sends people to the Contact page instead. `Book Description` and `Book Price` are optional too — until you fill them in, that book's page shows a note explaining which column to fill in, instead of just leaving a confusing blank space.
+Clicking any book on the Books page opens its own page showing the title, cover, `Book Description`, and `Book Price`. If you fill in `Purchace link` (a real link to where people can buy it), the "Оформить заказ" button links straight there in a new tab; leave it blank and the button just sends people to the Contact page instead. `Book Description` and `Book Price` are optional too — until you fill them in, that book's page shows a note explaining which column to fill in, instead of just leaving a confusing blank space.
 
 **There's no "Contact" tab yet**, so contact info (email, agent email, social links) still shows the original hardcoded text rather than being editable. If you want that editable too, tell your developer — it's a 5-minute addition once a Contact tab exists with columns `Email`, `Agent email`, `Social platforms (comma separated)`.
 
