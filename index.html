@@ -227,6 +227,47 @@
     font-size: 1.15rem;
     font-weight:600;
   }
+  .book-card{
+    background: none;
+    padding: 0;
+    text-align: left;
+    display: block;
+  }
+
+  /* Book detail page */
+  .book-detail{ max-width: 720px; }
+  .book-detail-title{
+    margin:0 0 1rem;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    font-weight:600;
+    color: var(--text);
+  }
+  .book-detail-desc{
+    margin:0 0 1.5rem;
+    font-size: clamp(1.05rem, 1.6vw, 1.4rem);
+    font-weight:500;
+    line-height:1.6;
+    white-space: pre-line;
+  }
+  .book-detail-price{
+    margin:0 0 1.5rem;
+    font-size: clamp(1.05rem, 1.6vw, 1.4rem);
+    font-weight:500;
+  }
+  .book-buy-btn{
+    display:inline-block;
+    background: var(--book-bg);
+    color: var(--book-text);
+    font-size: clamp(1.2rem, 2.4vw, 1.7rem);
+    font-weight:500;
+    padding: 0.6em 1.4em;
+    border-radius:0;
+    transition: background-color .18s ease, color .18s ease;
+  }
+  .book-buy-btn:hover, .book-buy-btn:focus-visible{
+    background: var(--hover-bg);
+    color: var(--hover-text);
+  }
 
   /* Contact */
   .contact-info{
@@ -294,11 +335,41 @@ const DEFAULT_NEWS = [
 ];
 
 const DEFAULT_BOOKS = [
-  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
-  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
-  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
-  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
-  { title: "Магазин заколдованной обуви", img: "https://placehold.co/227x339" },
+  {
+    title: "Магазин заколдованной обуви",
+    img: "https://placehold.co/227x339",
+    desc: "Краткое описание книги. Замените этот текст на настоящую аннотацию в таблице.",
+    price: "",
+    buyUrl: "",
+  },
+  {
+    title: "Магазин заколдованной обуви",
+    img: "https://placehold.co/227x339",
+    desc: "Краткое описание книги. Замените этот текст на настоящую аннотацию в таблице.",
+    price: "",
+    buyUrl: "",
+  },
+  {
+    title: "Магазин заколдованной обуви",
+    img: "https://placehold.co/227x339",
+    desc: "Краткое описание книги. Замените этот текст на настоящую аннотацию в таблице.",
+    price: "",
+    buyUrl: "",
+  },
+  {
+    title: "Магазин заколдованной обуви",
+    img: "https://placehold.co/227x339",
+    desc: "Краткое описание книги. Замените этот текст на настоящую аннотацию в таблице.",
+    price: "",
+    buyUrl: "",
+  },
+  {
+    title: "Магазин заколдованной обуви",
+    img: "https://placehold.co/227x339",
+    desc: "Краткое описание книги. Замените этот текст на настоящую аннотацию в таблице.",
+    price: "",
+    buyUrl: "",
+  },
 ];
 
 const DEFAULT_BIO = {
@@ -434,7 +505,7 @@ function useSheetSingle(url, fallback, mapRow = (d) => d) {
   return data;
 }
 
-function Reveal({ as: As = "div", className = "", delay = 0, children }) {
+function Reveal({ as: As = "div", className = "", delay = 0, children, ...rest }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -461,6 +532,7 @@ function Reveal({ as: As = "div", className = "", delay = 0, children }) {
       ref={ref}
       className={`reveal ${visible ? "reveal-visible" : ""} ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
+      {...rest}
     >
       {children}
     </As>
@@ -535,7 +607,7 @@ function ListPage({ items }) {
   );
 }
 
-function BooksPage({ items, onNavigate }) {
+function BooksPage({ items, onNavigate, onOpenBook }) {
   return (
     <div className="section">
       <Reveal as="button" className="order-btn" onClick={() => onNavigate("contact")}>
@@ -543,12 +615,44 @@ function BooksPage({ items, onNavigate }) {
       </Reveal>
       <div className="book-grid">
         {items.map((book, i) => (
-          <Reveal as="div" className="book-card" delay={i * 100} key={i}>
+          <Reveal as="button" className="book-card" delay={i * 100} key={i} onClick={() => onOpenBook(i)}>
             <img src={book.img} alt={book.title} loading="lazy" width="225" height="340" />
             <h3>{book.title}</h3>
           </Reveal>
         ))}
       </div>
+    </div>
+  );
+}
+
+function BookDetailPage({ book, onNavigate }) {
+  const hasBuyUrl = Boolean(book.buyUrl);
+  return (
+    <div className="section book-detail">
+      <Reveal as="h1" className="book-detail-title">
+        {book.title}
+      </Reveal>
+      {book.desc && (
+        <Reveal as="p" className="book-detail-desc" delay={80}>
+          {book.desc}
+        </Reveal>
+      )}
+      {book.price && (
+        <Reveal as="p" className="book-detail-price" delay={140}>
+          {book.price}
+        </Reveal>
+      )}
+      <Reveal
+        as={hasBuyUrl ? "a" : "button"}
+        className="book-buy-btn"
+        delay={200}
+        href={hasBuyUrl ? book.buyUrl : undefined}
+        target={hasBuyUrl ? "_blank" : undefined}
+        rel={hasBuyUrl ? "noopener noreferrer" : undefined}
+        onClick={hasBuyUrl ? undefined : () => onNavigate("contact")}
+      >
+        Оформить заказ
+      </Reveal>
     </div>
   );
 }
@@ -576,13 +680,17 @@ function ContactPage({ contact }) {
   );
 }
 
-function getPageFromHash() {
+function parseHash() {
   const hash = window.location.hash.replace("#", "");
-  return NAV_ITEMS.some((n) => n.id === hash) ? hash : "home";
+  const bookMatch = hash.match(/^book-(\d+)$/);
+  if (bookMatch) return { page: "book-detail", bookIndex: Number(bookMatch[1]) };
+  if (NAV_ITEMS.some((n) => n.id === hash)) return { page: hash, bookIndex: null };
+  return { page: "home", bookIndex: null };
 }
 
 function App() {
-  const [page, setPage] = useState(getPageFromHash());
+  const [route, setRoute] = useState(parseHash());
+  const page = route.page;
 
   const bio = useSheetSingle(SHEET_CSV_URLS.bio, DEFAULT_BIO, (row) => ({
     name: findField(row, "Name"),
@@ -602,6 +710,9 @@ function App() {
   const books = useSheetList(SHEET_CSV_URLS.books, DEFAULT_BOOKS, (row) => ({
     title: findField(row, "Book Title"),
     img: findField(row, "Cover Image URL"),
+    desc: findField(row, "Book Description") || "",
+    price: findField(row, "Price") || "",
+    buyUrl: findField(row, "Buy URL") || "",
   }));
   const contact = useSheetSingle(SHEET_CSV_URLS.contact, DEFAULT_CONTACT, (row) => {
     const socialsRaw = row["Social platforms (comma separated)"] || "";
@@ -618,31 +729,44 @@ function App() {
   });
 
   useEffect(() => {
-    const onHashChange = () => setPage(getPageFromHash());
+    const onHashChange = () => setRoute(parseHash());
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
   const navigate = (id) => {
     window.location.hash = id;
-    setPage(id);
+    setRoute({ page: id, bookIndex: null });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const openBook = (index) => {
+    window.location.hash = `book-${index}`;
+    setRoute({ page: "book-detail", bookIndex: index });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const currentBook = page === "book-detail" ? books[route.bookIndex] : null;
 
   let content;
   if (page === "home") content = <HomePage bio={bio} />;
   else if (page === "projects") content = <ListPage items={projects} />;
-  else if (page === "books") content = <BooksPage items={books} onNavigate={navigate} />;
+  else if (page === "books") content = <BooksPage items={books} onNavigate={navigate} onOpenBook={openBook} />;
   else if (page === "news") content = <ListPage items={news} />;
+  else if (page === "book-detail" && currentBook)
+    content = <BookDetailPage book={currentBook} onNavigate={navigate} />;
+  else if (page === "book-detail")
+    content = <BooksPage items={books} onNavigate={navigate} onOpenBook={openBook} />;
   else content = <ContactPage contact={contact} />;
 
   const navAtBottom = page === "home";
+  const mainKey = page === "book-detail" ? `book-${route.bookIndex}` : page;
 
   return (
     <div className="app">
       <Hero key={`hero-${page}`} />
       {!navAtBottom && <Nav page={page} onNavigate={navigate} />}
-      <main key={page}>{content}</main>
+      <main key={mainKey}>{content}</main>
       {navAtBottom && <Nav page={page} onNavigate={navigate} bottom />}
       <footer>
         <p>© 2026 Yulia Aslanova. All rights reserved</p>
